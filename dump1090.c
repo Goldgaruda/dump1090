@@ -947,6 +947,9 @@ void decodeModesMessage(struct modesMessage *mm, unsigned char *msg) {
     mm->errorbit = -1;  /* No error */
     mm->crcok = (mm->crc == crc2);
 
+    printf("crc2 %d crcok %d\n", crc2, mm->crcok);
+    exit(1);
+
     if (!mm->crcok && Modes.fix_errors &&
         (mm->msgtype == 11 || mm->msgtype == 17))
     {
@@ -1495,10 +1498,21 @@ good_preamble:
             continue;
         }
 
+        if (j == 1032)
+        {
+            printf("\n");
+            printf("use_correction %d delta %d msgtype %d msglen %d\n",
+                use_correction, delta, msgtype, msglen);
+            for (i = 0; i < MODES_LONG_MSG_BITS; i += 8) {
+                printf("%d ", msg[i/8]);
+            }
+            printf("\n");
+        }
         /* If we reached this point, and error is zero, we are very likely
          * with a Mode S message in our hands, but it may still be broken
          * and CRC may not be correct. This is handled by the next layer. */
         if (errors == 0 || (Modes.aggressive && errors < 3)) {
+            printf("jjjjj %d\n", j);
             struct modesMessage mm;
 
             /* Decode the received message and update statistics */
@@ -1537,7 +1551,7 @@ good_preamble:
 //                    if (k%1024 == 0)
 //                        printf("\n");
 
-                    printf("%d, ", Modes.data[sig_j+k]-127);
+                    printf("%d, ", Modes.data[sig_j+k]-128);
                 }
                 printf("\n");
 
